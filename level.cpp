@@ -90,6 +90,10 @@ void Level::init() {
     SETCOLOR(m_block_brush_debug.fill_color, 0.2f, 1.0f, 0.1f);
     SETCOLOR(m_block_brush_debug.outline_color, 0.3f, 1.0f, 0.2f);
 
+    m_block_brush_wallet.fill_opacity = 0.1f;
+    SETCOLOR(m_block_brush_wallet.fill_color, 1.0f, 0.0f, 0.0f);
+    SETCOLOR(m_block_brush_wallet.outline_color, 0.0f, 0.0f, 1.0f);
+
     //------------------------------INVISIBLE---------------------------------------------------------
 
     m_blocks_invisible.push_back(Box(0, 1 , m_block_size, m_block_size));
@@ -315,8 +319,8 @@ void Level::init() {
 
 
 
-    enemies.emplace_back(0.5f, 5.4f, 1.0f, 1.0f, "ninja_walking1.png");
-    enemies.emplace_back(9.0f, 5.4f, 1.0f, 1.0f, "ninja_walking1.png");
+    enemies.emplace_back(1.0f, 5.4f, 1.0f, 1.0f, "blob.png");
+    enemies.emplace_back(8.0f, 5.4f, 1.0f, 1.0f, "blob.png");
     for (int i = 0; i < enemies.size(); i++) {
         enemies[i].init();
     }
@@ -370,7 +374,7 @@ void Level::checkCollisions()
 
 
         if (offset = m_state->getPlayer()->intersectSideways(box)) {
-           
+
             m_state->getPlayer()->m_pos_x += offset;
             m_state->getPlayer()->m_vx = 0.0f;
             break;
@@ -434,49 +438,72 @@ void Level::checkCollisions()
     //-------------------------------------Enemies--------------------------------------
 
 
+    for (Enemy& e : enemies) {
+        for (auto& block : m_blocks) {
+            if (e.intersectSideways(block) || e.intersectDown(block)) {
+                e.reverseDirection();
+                return;
+            }
+        }
+
+    }
+
+    for (Enemy& e : enemies) {
+        for (auto& block : m_blocks_invisible) {
+            if (e.intersectSideways(block) || e.intersectDown(block)) {
+                e.reverseDirection();
+                return;
+            }
+        }
+    }
+
 
     for (int i = 0; i < enemies.size(); i++) {
-        Enemy &e = enemies[i];
+        Enemy& e = enemies[i];
         float offset = 0.0f;
         if (offset = m_state->getPlayer()->intersectDown(e)) {
-            
+
             m_state->getPlayer()->m_pos_y += offset;
 
 
             m_lives -= 1;
 
-            if (m_state->getPlayer()->getCurrentSprite() == "specific_sprite.png") {
+            /*if (m_state->getPlayer()->getCurrentSprite() == "specific_sprite.png") {
                 e.setActive(false);
                 continue;
-            }
+            }*/
             m_state->getPlayer()->m_vy = 0.0f;
         }
-        
+
     }
-    
-    for (int i = 0; i < enemies.size(); i++ ) {
+
+    for (int i = 0; i < enemies.size(); i++) {
         float offset = 0.0f;
-        Enemy &e = enemies[i];
+        Enemy& e = enemies[i];
 
         if (offset = m_state->getPlayer()->intersectSideways(e)) {
             m_state->getPlayer()->m_pos_x += offset;
 
             m_lives -= 1;
 
-            if (m_state->getPlayer()->getCurrentSprite() == "specific_sprite.png") {
+            /*if (m_state->getPlayer()->getCurrentSprite() == "specific_sprite.png") {
 
                 e.setActive(false);
                 continue;
-            }
+            }*/
             m_state->getPlayer()->m_vx = 0.0f;
-        
+
         }
-       
+
     }
 
 
 
 }
+
+
+
+
 
 
 //-------------------------------------------------------------------------------------------------------------
@@ -577,18 +604,29 @@ void Level::drawBlockHearts(int i) {
         graphics::drawRect(m_state->getCanvasWidth() / 6.5, 0.5f, 0.5f, 0.5f, m_block_brush_hearts0);
         graphics::drawRect(m_state->getCanvasWidth() / 10.0, 0.5f, 0.5f, 0.5f, m_block_brush_hearts1);
         graphics::drawRect(m_state->getCanvasWidth() / 21.0, 0.5f, 0.5f, 0.5f, m_block_brush_hearts2);
+        if (m_state->m_debugging) {
+            graphics::drawRect(x, y, m_block_size, m_block_size, m_block_brush_hearts_debug);
+        }
     }
     else if (m_lives == 2) {
         graphics::drawRect(m_state->getCanvasWidth() / 10.0, 0.5f, 0.5f, 0.5f, m_block_brush_hearts1);
         graphics::drawRect(m_state->getCanvasWidth() / 21.0, 0.5f, 0.5f, 0.5f, m_block_brush_hearts2);
+        if (m_state->m_debugging) {
+            graphics::drawRect(x, y, m_block_size, m_block_size, m_block_brush_hearts_debug);
+        }
     }
     else if (m_lives == 1) {
         graphics::drawRect(m_state->getCanvasWidth() / 21.0, 0.5f, 0.5f, 0.5f, m_block_brush_hearts2);
+        if (m_state->m_debugging) {
+            graphics::drawRect(x, y, m_block_size, m_block_size, m_block_brush_hearts_debug);
+        }
     }
 
-    if (m_state->m_debugging) {
-        graphics::drawRect(x, y, m_block_size, m_block_size, m_block_brush_hearts_debug);
-    }
+}
+
+void Level::drawWallet(int i) {
+
+    graphics::drawText((m_state->getCanvasWidth() / 21.0) + 1, 1.0f,1, to_string(m_wallet), m_block_brush_wallet);
 }
 
 void Level::draw() {
@@ -790,7 +828,7 @@ void Level::updateLevel(float dt) {
     if (m_state->getPlayer()->isActive())
         m_state->getPlayer()->update(dt);
     
-    for (auto enemy : enemies) {
+    for (auto& enemy : enemies) {
          enemy.update(dt);
     }
     

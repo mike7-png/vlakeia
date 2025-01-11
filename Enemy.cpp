@@ -6,10 +6,13 @@
 
 
 Enemy::Enemy(float pos_x, float pos_y, float width, float height, const std::string& texture) :
-    GameObject("Enemy"), Box(pos_x, pos_y, width, height), m_texture(texture) {
+    GameObject("Enemy"), Box(pos_x, pos_y, width, height), m_texture(texture),m_isMovingRight(true) {
+    m_speed = 1.3f; //speed
 }
 
+
 void Enemy::update(float dt) {
+    cout<<"enemy= " << m_pos_x << endl;
     moveEnemy(dt);
     //m_state->m_global_offset_x = m_state->getCanvasWidth() / 2.0f - m_pos_x;
     //m_state->m_global_offset_y = m_state->getCanvasHeight() / 2.0f - m_pos_y;
@@ -17,25 +20,32 @@ void Enemy::update(float dt) {
 
 
 void Enemy::reverseDirection() {
-    m_speed = -m_speed; 
+    if (m_isMovingRight) {
+        m_pos_x -= 0.1;
+    }
+    else {
+        m_pos_x += 0.1;
+    }
+    m_isMovingRight = !m_isMovingRight; // Αλλαγή κατεύθυνσης
 }
+
 
 
 void Enemy::ChangeSpritesReverse() {
     m_sprites_enemy.clear();
     if (m_speed > 0) {
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking1.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking2.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking3.png")); //Kanonika
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking4.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking5.png"));
-    }
-    else {
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("Aninja_walking1.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("Aninja_walking2.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("Aninja_walking3.png")); //Anapoda
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("Aninja_walking4.png"));
-        m_sprites_enemy.push_back(m_state->getFullAssetPath("Aninja_walking5.png"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blobpng"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blobpng"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blobpng")); //Kanonika
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blobpng"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blobpng"));
+    }                                                        
+    else {                                                   
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png")); //Anapoda
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+        m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
     }
 }
 
@@ -49,19 +59,15 @@ void Enemy::draw() {
         graphics::drawRect(m_pos_x, m_pos_y, m_width, m_height, m_brush_enemy);
 }
 
-void Enemy::moveEnemy(float dt){
-    
-    float delta_time = dt / 1000.0f;
-
-
-    m_pos_x += m_speed * delta_time;
-    if (m_pos_y >= 5.4f) {
-        m_pos_y = 5.4f;
-       
+void Enemy::moveEnemy(float dt) {
+    if (m_isMovingRight) {
+        m_pos_x += m_speed * (dt / 1000.0f);
     }
-
-
+    else {
+        m_pos_x -= m_speed * (dt / 1000.0f);
+    }
 }
+
 
 
 
@@ -73,11 +79,11 @@ void Enemy::init() {
     m_brush_enemy.outline_opacity = 0.0f;
 
 
-    m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking1.png"));
-    m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking2.png"));
-    m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking3.png"));
-    m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking4.png"));
-    m_sprites_enemy.push_back(m_state->getFullAssetPath("ninja_walking5.png"));
+    m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+    m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+    m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+    m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
+    m_sprites_enemy.push_back(m_state->getFullAssetPath("blob.png"));
 
 
    ;
@@ -87,6 +93,8 @@ void Enemy::init() {
 
     SETCOLOR(m_brush_enemy_debug.fill_color, 0.0f, 0.0f, 1.0f);
     SETCOLOR(m_brush_enemy_debug.outline_color, 0.2f, 0.2f, 1.0f);
+
+    
 
 }
 

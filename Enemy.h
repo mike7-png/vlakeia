@@ -8,33 +8,36 @@
 
 class Enemy : public GameObject, public Box {
 
+private:
+    bool m_isMovingRight;
 
 public:
-    float m_speed = 1.3f; // Σταθερή ταχύτητα κίνησης
+    float m_speed;
 
-    graphics::Brush m_brush_enemy; // Brush για σχεδίαση
-    graphics::Brush m_brush_enemy_debug;
-    std::vector<std::string> m_sprites_enemy; // Sprites του εχθρού
-    string m_texture;
+    graphics::Brush m_brush_enemy;       
+    graphics::Brush m_brush_enemy_debug; 
+    std::vector<std::string> m_sprites_enemy; 
+    std::string m_texture;               
 
-    // Κατασκευαστής
     Enemy(float pos_x, float pos_y, float width, float height, const std::string& texture);
-    void setPosition(float m_pos_x, float m_pos_y);
 
-    // Ενημέρωση θέσης
+
+    void setPosition(float pos_x, float pos_y);
+
+
     void update(float dt) override;
 
-    // Σχεδίαση
+
     void draw() override;
+
+
     void moveEnemy(float dt);
 
 
-    // Αρχικοποίηση
     void init() override;
     void reset();
 
     void reverseDirection();
     void ChangeSpritesReverse();
 };
-
 
